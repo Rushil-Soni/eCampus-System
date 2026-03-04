@@ -64,4 +64,7 @@ public interface TermsRepository extends JpaRepository<Terms, Long> {
 
     @Query("SELECT t FROM Terms t WHERE t.trmayrid = :ayrid AND t.trmname = :trmname")
     Terms findByTrmayridAndTrmname(@Param("ayrid") Long ayrid, @Param("trmname") String trmname);
+
+    @Query(value = "SELECT t.trmname FROM ec2.terms t WHERE t.trmid = :trmid", nativeQuery = true)
+    String getTrmById(@Param("trmid") Long trmid);
 }

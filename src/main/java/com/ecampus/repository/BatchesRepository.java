@@ -37,4 +37,13 @@ public interface BatchesRepository extends JpaRepository<Batches, Long> {
     
     // Check for duplicate batch
     boolean existsByBchprgidAndSchemeIdAndSplidAndBchcalid(Long bchprgid, Long schemeId, Long splid, Long bchcalid);
+
+    @Query(value = "SELECT DISTINCT bt.bchname FROM ec2.batches bt WHERE bt.bchid IN (SELECT DISTINCT sm.strbchid FROM ec2.semesters sm WHERE sm.strtrmid = :trmid)", nativeQuery = true)
+    List<String> findBatchesByTrmId(@Param("trmid") Long trmid);
+
+    @Query(value = "SELECT bt.bchid FROM ec2.batches bt WHERE bt.bchname = :bchname AND bt.scheme_id = :scheme_id AND bt.splid = :splid", nativeQuery = true)
+    Long getIdFromBchSchSpl(@Param("bchname") String bchname, @Param("scheme_id") Long scheme_id, @Param("splid") Long splid);
+
+    @Query(value = "SELECT DISTINCT b.bchname FROM ec2.batches b JOIN ec2.schemedetails sd ON b.scheme_id = sd.scheme_id AND b.splid = sd.splid WHERE sd.splname = :splname AND b.bchid IN (SELECT DISTINCT sm.strbchid FROM ec2.semesters sm WHERE sm.strtrmid = :trmid) ORDER BY b.bchname;", nativeQuery = true)
+    List<String> findBatchBySplnTrm(@Param("splname") String splname, @Param("trmid") Long trmid);
 }

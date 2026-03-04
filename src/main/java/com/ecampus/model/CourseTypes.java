@@ -37,6 +37,23 @@ public class CourseTypes {
     @Column(name = "max_credits")
     private Long maxCredits;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(
+            name = "scheme_id",
+            referencedColumnName = "scheme_id",
+            insertable = false,
+            updatable = false
+        ),
+        @JoinColumn(
+            name = "splid",
+            referencedColumnName = "splid",
+            insertable = false,
+            updatable = false
+        )
+    })
+    private SchemeDetails schemeDetails;
+
     public Long getSchemeId() { return schemeId; }
     public void setSchemeId(Long schemeId) { this.schemeId = schemeId; }
 
@@ -63,4 +80,7 @@ public class CourseTypes {
 
     public Long getMaxCredits() { return maxCredits; }
     public void setMaxCredits(Long maxCredits) { this.maxCredits = maxCredits; }
+
+    public SchemeDetails getSchemeDetails() { return schemeDetails; }
+    
 }

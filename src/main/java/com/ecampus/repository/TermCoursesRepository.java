@@ -183,4 +183,10 @@ public interface TermCoursesRepository extends JpaRepository<TermCourses, Long> 
 
     List<TermCourses> findByTcrtrmidAndCrstype(Long tcrtrmid, String crstype);
 
+    @Query(value = "SELECT tcr.tcrid FROM ec2.termcourses tcr WHERE tcr.tcrtrmid = :tcrtrmid AND tcr.iscore = 'N'", nativeQuery = true)
+    List<Long> getElectiveIdByTrmId(@Param("tcrtrmid") Long tcrtrmid);
+
+    @Query(value = "SELECT tcr.iscore FROM ec2.termcourses tcr WHERE tcr.tcrid = :tcrid", nativeQuery = true)
+    String getiscoreById(@Param("tcrid") Long tcrid);
+
 }

@@ -162,6 +162,6 @@ public class Users implements AuthUserDetails {
     @Override
     public String getrole() {
         if(Objects.equals(this.urole0, "EMPLOYEE") || Objects.equals(this.urole0, "DEAN")) return "FACULTY";
-        return this.urole0;
+        return this.urole0==null ? "ADMIN" : this.urole0;
     }
 }

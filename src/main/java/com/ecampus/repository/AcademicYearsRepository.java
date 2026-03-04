@@ -23,4 +23,7 @@ public interface AcademicYearsRepository extends JpaRepository<AcademicYears, Lo
     Long findMaxAyrid();
 
     List<AcademicYears> findAllByOrderByAyridDesc();
+
+    @Query(value = "SELECT ayr.ayrname FROM ec2.academicyears ayr WHERE ayr.ayrid = (SELECT trm.trmayrid FROM ec2.terms trm WHERE trm.trmid = :trmid)", nativeQuery = true)
+    String getYrByTrmId(@Param("trmid") Long trmid);
 }
