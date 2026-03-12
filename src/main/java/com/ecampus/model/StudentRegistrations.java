@@ -18,6 +18,12 @@ public class StudentRegistrations {
     @Column(name = "srgid")
     private Long srgid;
 
+    @Column(name = "srgstdid", insertable = false, updatable = false)
+    private Long srgstdid;
+
+    @Column(name = "srgstrid", insertable = false, updatable = false)
+    private Long srgstrid;
+
     @Column(name = "srgregdate")
     private LocalDate srgregdate;
 
@@ -42,32 +48,22 @@ public class StudentRegistrations {
     @Column(name = "srgrowstate")
     private Long srgrowstate;
 
-    @Column(name = "srgstrid", insertable = false, updatable = false)
-    private Long srgstrid;
-
-    @Column(name = "srgstdid", insertable = false, updatable = false)
-    private Long srgstdid;
-
     @ManyToOne
     @JoinColumn(name = "srgstdid", nullable = false)
-    private Students students;
+    private Students student;
 
-    public Students getStudents() {
-        return students;
-    }
-    public void setStudents(Students students) {
-        this.students = students;
-    }
     @ManyToOne
     @JoinColumn(name = "srgstrid", nullable = false)
-    private Semesters semesters;
+    private Semesters semester;
 
-    public Semesters getSemester() {
-        return semesters;
-    }
-    public void setSemester(Semesters semester) {
-        this.semesters = semester;
-    }
+    // getters & setters
+
+    public Students getStudent() { return student; }
+    public void setStudent(Students student) { this.student = student; }
+
+    public Semesters getSemester() { return semester; }
+    public void setSemester(Semesters semester) { this.semester = semester; }
+
     public Long getSrgid() { return srgid; }
     public void setSrgid(Long srgid) { this.srgid = srgid; }
 

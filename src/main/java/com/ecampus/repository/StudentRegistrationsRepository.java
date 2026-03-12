@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.ecampus.model.Semesters;
 import com.ecampus.model.StudentRegistrations;
 
 @Repository
@@ -21,4 +22,43 @@ public interface StudentRegistrationsRepository extends JpaRepository<StudentReg
 
     @Query("SELECT MAX(s.srgid) FROM StudentRegistrations s")
     Optional<Long> findMaxSrgid();
+
+    
+    // Get latest active registration record per student
+    List<StudentRegistrations> findBysrgstdidAndSrgrowstateGreaterThanOrderBySrgidDesc(
+            Long studentId, int state);
+
+    // Get most recent registration entry
+    Optional<StudentRegistrations> findTopBysrgstdidOrderBySrgidDesc(Long studentId);
+
+    // Get all semesters registered by student in order
+    @Query("SELECT sr FROM StudentRegistration sr JOIN sr.semesters s " +
+            "WHERE sr.students.stdid = :studentId " +
+            "ORDER BY s.strseqno ASC")
+    List<StudentRegistrations> findAllRegistrationsByStudentIdOrderBySemesterSequence(
+            @Param("studentId") Long studentId);
+
+
+    // Used for semester-wise grade card (corrected based on entity)
+    @Query("SELECT r FROM StudentRegistration r " +
+            "WHERE r.students.stdid = :studentId " +
+            "AND r.semesters.strid = :semesterId " +
+            "AND r.srgrowstate > 0")
+    StudentRegistrations findByStudentIdAndSemesterId(@Param("studentId") Long studentId,
+                                                     @Param("semesterId") Long semesterId);
+
+
+    // Semester dropdown loading
+    @Query(value = "SELECT * FROM ec2.semesters WHERE strtrmid = :termId", nativeQuery = true)
+    List<Semesters> findSemestersByTerm(@Param("termId") Long termId);
+    @Query("""
+       SELECT r
+       FROM StudentRegistration r
+       JOIN r.students s
+       JOIN r.semesters sem
+       WHERE sem.strid = :semesterId
+         AND r.srgrowstate > 0
+       ORDER BY s.stdinstid ASC
+       """)
+    List<StudentRegistrations> findBySemesterOrderByStudentInstId(@Param("semesterId") Long semesterId);
 }

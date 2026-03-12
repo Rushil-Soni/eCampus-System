@@ -38,7 +38,7 @@ public class CourseTypesController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid scheme ID"));
 
         List<CourseTypes> courseTypes =
-                courseTypesRepository.findBySchemeIdAndSplid(schemeId, splid);
+                courseTypesRepository.findBySchemeIdAndSplidOrderByCtpid(schemeId, splid);
 
         Optional<Programs> program = programsRepository.findById(programId);
         if (program.isEmpty()) {

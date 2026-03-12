@@ -14,6 +14,9 @@ public interface CourseTypesRepository extends JpaRepository<CourseTypes, Long> 
     // Find course types for a specific scheme and splid
     List<CourseTypes> findBySchemeIdAndSplid(Long schemeId, Long splid);
 
+    // Find course types for a specific scheme and splid ordered by ctpid
+    List<CourseTypes> findBySchemeIdAndSplidOrderByCtpid(Long schemeId, Long splid);
+
     // Find course types for a scheme restricted to specific splid values
     List<CourseTypes> findBySchemeIdAndSplidIn(Long schemeId, java.util.List<Long> splids);
 

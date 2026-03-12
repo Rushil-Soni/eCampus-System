@@ -2,7 +2,6 @@ package com.ecampus.repository;
 
 import com.ecampus.model.SemesterCourses;
 
-import org.antlr.v4.runtime.atn.SemanticContext.AND;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

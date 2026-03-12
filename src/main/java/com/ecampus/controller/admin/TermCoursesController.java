@@ -80,7 +80,29 @@ public class TermCoursesController {
         }
         Set<Long> latestTermIds = new HashSet<>(maxTrmidByType.values());
 
-        model.addAttribute("coursesByAcademicYearThenTerm", coursesByAcademicYearThenTerm);
+        // Ensure latest terms (per type) appear even if they have no courses,
+        // and maintain order: ayrid DESC, trmid DESC
+        Map<String, Map<String, List<TermCoursesViewDTO>>> orderedCoursesByAyrThenTerm = new LinkedHashMap<>();
+        for (Map.Entry<String, Map<String, Long>> ayrEntry : termIdMap.entrySet()) {
+            String ayrname = ayrEntry.getKey();
+            Map<String, List<TermCoursesViewDTO>> termMap = new LinkedHashMap<>();
+            for (Map.Entry<String, Long> trmEntry : ayrEntry.getValue().entrySet()) {
+                String trmname = trmEntry.getKey();
+                Long trmid = trmEntry.getValue();
+                Map<String, List<TermCoursesViewDTO>> existing = coursesByAcademicYearThenTerm.get(ayrname);
+                boolean hasCourses = existing != null && existing.containsKey(trmname);
+                // Include term if it has courses, or if it's the latest for its type
+                if (hasCourses || latestTermIds.contains(trmid)) {
+                    List<TermCoursesViewDTO> courses = hasCourses ? existing.get(trmname) : new ArrayList<>();
+                    termMap.put(trmname, courses);
+                }
+            }
+            if (!termMap.isEmpty()) {
+                orderedCoursesByAyrThenTerm.put(ayrname, termMap);
+            }
+        }
+
+        model.addAttribute("coursesByAcademicYearThenTerm", orderedCoursesByAyrThenTerm);
         model.addAttribute("termIdMap", termIdMap);
         model.addAttribute("latestTermIds", latestTermIds);
         

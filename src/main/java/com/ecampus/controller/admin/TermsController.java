@@ -41,8 +41,8 @@ public class TermsController {
     @Autowired
     private TermCoursesRepository termCourseRepository;
 
-    @Autowired
-    private SchemeRepository schemeRepository;
+    // @Autowired
+    // private SchemeRepository schemeRepository;
 
     @Autowired
     private SemesterCoursesRepository semesterCoursesRepository;

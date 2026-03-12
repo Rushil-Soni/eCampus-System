@@ -198,7 +198,7 @@ public class SchemesController {
             redirectAttributes.addFlashAttribute("error", "Source scheme not found.");
             return "redirect:/admin/programs/" + programId + "/schemes/pull";
         }
-        Scheme sourceScheme = sourceSchemeOpt.get();
+        // Scheme sourceScheme = sourceSchemeOpt.get();
 
         // Fetch the program
         Optional<Programs> programOpt = programsRepository.findById(programId);

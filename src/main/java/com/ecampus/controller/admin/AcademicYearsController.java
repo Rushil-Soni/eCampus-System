@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 
@@ -31,29 +32,38 @@ public class AcademicYearsController {
     // 2. SHOW ADD FORM
     @GetMapping("/add")
     public String showAddForm(Model model) {
-        model.addAttribute("academicYear", new AcademicYears());
         return "admin/academic-year-form";
     }
 
     // 3. HANDLE ADD FORM SUBMISSION
     @PostMapping("/add")
-    public String saveAcademicYear(@ModelAttribute AcademicYears ay) {
+    public String saveAcademicYear(@RequestParam("startYear") int startYear,
+                                   RedirectAttributes redirectAttributes) {
 
-        // 1. Fetch current max ID
+        // 1. Generate ayrname from startYear
+        String ayrname = startYear + "-" + String.valueOf(startYear + 1).substring(2);
+
+        // 2. Check if already exists
+        Long existingId = academicYearsRepository.findAcademicYearIdByName(ayrname);
+        if (existingId != null) {
+            redirectAttributes.addFlashAttribute("error", "Academic year " + ayrname + " already exists.");
+            return "redirect:/admin/academicyears/add";
+        }
+
+        // 3. Fetch current max ID
         Long maxId = academicYearsRepository.findMaxAyrid();
-        Long newId = (Long) ((maxId == null ? 0 : maxId) + 1);
+        Long newId = (maxId == null ? 0 : maxId) + 1;
 
-        // 2. Assign new ID
+        // 4. Create and save
+        AcademicYears ay = new AcademicYears();
         ay.setAyrid(newId);
-
-        // 3. Default metadata
+        ay.setAyrname(ayrname);
         ay.setAyrcreatedat(LocalDateTime.now());
         ay.setAyrlastupdatedat(LocalDateTime.now());
-        ay.setAyrcreatedby(1L); // set your user ID
+        ay.setAyrcreatedby(1L);
         ay.setAyrlastupdatedby(1L);
         ay.setAyrrowstate(1L);
 
-        // 4. Save
         academicYearsRepository.save(ay);
 
         return "redirect:/admin/academicyears";
