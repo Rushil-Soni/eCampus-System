@@ -185,4 +185,16 @@ public interface TermCoursesRepository extends JpaRepository<TermCourses, Long> 
     @Query(value = "SELECT tcr.tcrid FROM ec2.termcourses tcr WHERE tcr.tcrtrmid = :tcrtrmid AND tcr.crstype = 'ELECTIVE'", nativeQuery = true)
     List<Long> getElectiveIdByTrmId(@Param("tcrtrmid") Long tcrtrmid);
 
+    @Query(value = "SELECT tc.tcrid, tc.tcrcrsid, c.crsname, c.crscode, " +
+       "CONCAT(c.crslectures, '-', c.crstutorials, '-', c.crspracticals, '-', c.crscreditpoints) as ltpc, " +
+       "tc.tcrfacultyid, tca.tcaelectivetype, tc.tcrslot " +
+       "FROM ec2.termcourses tc " +
+       "JOIN ec2.courses c ON tc.tcrcrsid = c.crsid " +
+       "JOIN ec2.termcourseavailablefor tca ON tca.tcatcrid = tc.tcrid " +
+       "WHERE tc.tcrtrmid = :trmid " +
+       "AND tc.crstype = :crstype AND tc.tcrslot IS NOT NULL " +
+       "AND tca.tcabchid = :bchid " +
+       "AND tca.tcaelectivetype IS NOT NULL", nativeQuery = true)
+    List<Object[]> findCoursesBySlot(@Param("trmid") Long trmid, @Param("crstype") String crstype, @Param("bchid") Long bchid);
+
 }

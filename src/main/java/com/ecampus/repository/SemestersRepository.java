@@ -55,4 +55,7 @@ public interface SemestersRepository extends JpaRepository<Semesters, Long> {
             ORDER BY s.strid DESC
             """, nativeQuery = true)
     List<Object[]> getAllSemestersDetailsRaw();
+
+    @Query(value = "SELECT COALESCE(MAX(sm.strtrmid), 0) FROM ec2.semesters sm WHERE sm.strbchid = :bchid", nativeQuery = true)
+    Long findMaxTrmIdByBchId(@Param("bchid") Long bchid);
 }
