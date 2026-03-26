@@ -50,6 +50,7 @@ public class ForgotPasswordService {
 
     public void sendEmail(String toEmail, String token) {
 
+        toEmail+="@dau.ac.in";
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
         message.setSubject("Password Reset Request");

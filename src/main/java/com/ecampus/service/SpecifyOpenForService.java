@@ -59,7 +59,7 @@ public class SpecifyOpenForService {
             TermCourseAvailableFor TCAFor = new TermCourseAvailableFor();
             TCAFor.setTcaid(currtcaId);
             TCAFor.setTcatcrid(tcid);
-            TCAFor.setTcaprgid(0L);
+            TCAFor.setTcaprgid(1L);
             TCAFor.setTcastatus("T");
             TCAFor.setTcacreatedby(1150L);
             TCAFor.setTcacreatedat(LocalDateTime.now());
@@ -68,6 +68,7 @@ public class SpecifyOpenForService {
             TCAFor.setTcarowstate(1L);
             TCAFor.setTcabchid(BatchId);
             TCAFor.setTcaelectivetype(null);
+            TCAFor.setCtpid(null);
             TCAFor.setTca_seats(0L);
             TCAFor.setTca_booked(0L);
 
@@ -91,7 +92,7 @@ public class SpecifyOpenForService {
     }
 
     @Transactional
-    public void updateElectiveType(List<Long> selectedTcaIds, String electiveCode){
+    public void updateElectiveType(List<Long> selectedTcaIds, String electiveCode, Long ctpid){
         if (selectedTcaIds == null || selectedTcaIds.isEmpty()) {
             return;
         }
@@ -103,6 +104,7 @@ public class SpecifyOpenForService {
             TCA.setTcalastupdatedby(1150L);
             TCA.setTcalastupdatedat(LocalDateTime.now());
             TCA.setTcaelectivetype(electiveCode);
+            TCA.setCtpid(ctpid);
             TCA.setTca_seats(0L);
             TCA.setTca_booked(0L);
 

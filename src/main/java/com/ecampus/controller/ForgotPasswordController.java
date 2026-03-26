@@ -1,5 +1,7 @@
 package com.ecampus.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,7 +35,12 @@ public class ForgotPasswordController {
         String token = forgotService.createResetToken(username);
         
         if (token != null) {
-            Users user = userRepo.findWithName(username).orElseThrow(() -> new RuntimeException("User not found"));;
+            Optional<Users> userOptional = userRepo.findWithName(username);
+            if (userOptional.isEmpty()) {
+                ra.addFlashAttribute("error", "User not found.");
+                return "redirect:/forgot-password";
+            }
+            Users user = userOptional.get();
             forgotService.sendEmail(user.getUemail(), token); 
             ra.addFlashAttribute("success", "A reset link has been sent to your registered email.");
 
@@ -64,8 +71,16 @@ public class ForgotPasswordController {
         String username = forgotService.validateTokenAndGetUsername(token);
         if (username == null) return "redirect:/login?error=sessionExpired";
 
+        String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$";
+
         if (!password.equals(confirmPassword)) {
             ra.addFlashAttribute("error", "Passwords do not match!");
+            return "redirect:/forgot-password/reset?token=" + token;
+        }
+
+        if (!password.matches(pattern)) {
+            ra.addFlashAttribute("error",
+                    "Password must have 8+ chars, uppercase, lowercase, number and special character");
             return "redirect:/forgot-password/reset?token=" + token;
         }
 

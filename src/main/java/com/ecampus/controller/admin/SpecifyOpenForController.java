@@ -85,6 +85,7 @@ public class SpecifyOpenForController {
                                  @RequestParam Long termId,
                                  @RequestParam String electiveCode,
                                  @RequestParam String electiveName,
+                                 @RequestParam Long ctpid,
                                  Model model) {
 
         Long SchemeId = OpenForService.getSchemeIdFromSplName(program);
@@ -103,6 +104,7 @@ public class SpecifyOpenForController {
         model.addAttribute("termId", termId);
         model.addAttribute("electiveCode", electiveCode);
         model.addAttribute("electiveName", electiveName);
+        model.addAttribute("ctpid", ctpid);
         
         return "admin/chooseElective";
     }
@@ -112,11 +114,12 @@ public class SpecifyOpenForController {
                                @RequestParam String program,
                                @RequestParam Long termId,
                                @RequestParam String electiveCode,
+                               @RequestParam Long ctpid,
                                @RequestParam(value = "selectedTcaIds", required = false) List<Long> selectedTcaIds,
                                RedirectAttributes redirectAttributes) {
         
         if (selectedTcaIds != null) {
-            OpenForService.updateElectiveType(selectedTcaIds, electiveCode);
+            OpenForService.updateElectiveType(selectedTcaIds, electiveCode, ctpid);
         }
 
         redirectAttributes.addFlashAttribute("batch", batch);
@@ -195,7 +198,7 @@ public class SpecifyOpenForController {
         System.out.println("Removing now:" + tcaId + " " + batch + " " + program + " " + termId);
 
         // Set the elective type to null for this specific record
-        OpenForService.updateElectiveType(List.of(tcaId), null);
+        OpenForService.updateElectiveType(List.of(tcaId), null, null);
         
         // Prepare the updated data for the fragment
         prepareCourseData(batch, program, termId, model);

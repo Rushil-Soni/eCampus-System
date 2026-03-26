@@ -41,6 +41,9 @@ public class TermCourseAvailableFor {
     @Column(name = "tcaelectivetype")
     private String tcaelectivetype;
 
+    @Column(name = "ctpid")
+    private Long ctpid;
+
     @Column(name = "tca_seats")
     private Long tca_seats;
 
@@ -68,6 +71,10 @@ public class TermCourseAvailableFor {
         updatable = false
     )
     private TermCourses termCourse;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ctpid", referencedColumnName = "ctpid", insertable = false, updatable = false)
+    private CourseTypes courseType;
 
     /* =======================
        Getters & Setters
@@ -161,6 +168,14 @@ public class TermCourseAvailableFor {
         this.tcaelectivetype = tcaelectivetype;
     }
 
+    public Long getCtpid() {
+        return ctpid;
+    }
+
+    public void setCtpid(Long ctpid) {
+        this.ctpid = ctpid;
+    }
+
     public Long getTca_seats() {
         return tca_seats;
     }
@@ -183,5 +198,9 @@ public class TermCourseAvailableFor {
 
     public TermCourses getTermCourse() {
         return termCourse;
+    }
+
+    public CourseTypes getCourseType() {
+        return courseType;
     }
 }
