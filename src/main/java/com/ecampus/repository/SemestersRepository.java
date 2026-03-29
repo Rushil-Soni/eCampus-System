@@ -58,4 +58,7 @@ public interface SemestersRepository extends JpaRepository<Semesters, Long> {
 
     @Query(value = "SELECT COALESCE(MAX(sm.strtrmid), 0) FROM ec2.semesters sm WHERE sm.strbchid = :bchid", nativeQuery = true)
     Long findMaxTrmIdByBchId(@Param("bchid") Long bchid);
+
+    @Query(value = "SELECT sm.strid FROM ec2.semesters sm WHERE sm.strbchid = :bchid AND sm.strtrmid = :trmid", nativeQuery = true)
+    Long findSemByBchAndTrm(@Param("bchid") Long bchid, @Param("trmid") Long trmid);
 }
