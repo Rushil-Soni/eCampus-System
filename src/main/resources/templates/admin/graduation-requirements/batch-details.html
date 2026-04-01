@@ -47,14 +47,14 @@
             font-weight: 600;
         }
         .badge-success {
-            background-color: #28a745;
+            background-color: #198754;
             padding: 5px 10px;
             border-radius: 3px;
             color: white;
             font-size: 12px;
         }
         .badge-warning {
-            background-color: #ffc107;
+            background-color: #fd7e14;
             padding: 5px 10px;
             border-radius: 3px;
             color: white;
@@ -89,6 +89,27 @@
         }
         .requirement-unmet {
             color: #fd7e14;
+        }
+        .btn-met {
+            background-color: #198754;
+            color: white;
+            border: 1px solid #198754;
+        }
+        .btn-unmet {
+            background-color: #fd7e14;
+            color: white;
+            border: 1px solid #fd7e14;
+        }
+        /* Optional hover effects */
+        .btn-met:hover {
+            background-color: #157347;
+            color: white;
+            border-color: #146c43;
+        }
+        .btn-unmet:hover {
+            background-color: #e96b00;
+            color: white;
+            border-color: #d65f00;
         }
     </style>
 </head>
@@ -162,6 +183,7 @@
                     <br><small>(Min: <span th:text="${studentRequirements[0]?.minRequiredCpi}"></span>)</small>
                 </th>
                 <th style="width: 18%;" class="text-center">Graduation Requirement</th>
+                <th style="width: 10%;" class="text-center">Graduation Requirement</th>
             </tr>
             </thead>
 
@@ -210,6 +232,14 @@
                             <strong th:text="Incomplete"></strong>
                         </div>
                     </span>
+                </td>
+
+                <!-- Graduation Requirements -->
+                <td class="text-center">
+                <a th:href="@{/admin/graduation-requirements/batches/{id}/{stdinstid}(id=${batch.bchid}, stdinstid=${student.stdinstid})}" 
+                   th:class="'btn btn-sm btn-action ' + (${student.graduationStatus == 'Completed'} ? 'btn-met' : 'btn-unmet')">
+                    View
+                </a>
                 </td>
             </tr>
             </tbody>
