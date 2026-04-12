@@ -61,4 +61,20 @@ public interface SemestersRepository extends JpaRepository<Semesters, Long> {
 
     @Query(value = "SELECT sm.strid FROM ec2.semesters sm WHERE sm.strbchid = :bchid AND sm.strtrmid = :trmid", nativeQuery = true)
     Long findSemByBchAndTrm(@Param("bchid") Long bchid, @Param("trmid") Long trmid);
+
+    @Query(value = "SELECT * FROM ec2.semesters sm WHERE sm.strtrmid = :trmid", nativeQuery = true)
+    List<Semesters> findByTrmid(@Param("trmid") Long trmid);
+
+    @Query(value = "select c.crscode, c.crsname, c.crscreditpoints, s.strname, src.srctype, tc.* from ec2.semesters s " +
+                "JOIN ec2.STUDENTREGISTRATIONS srg on srg.srgstrid=s.strid " +
+                "JOIN ec2.STUDENTREGISTRATIONCOURSES src on src.srcsrgid=srg.srgid " +
+                "JOIN ec2.TERMCOURSES tc on tc.tcrid=src.srctcrid " +
+                "JOIN ec2.TERMS t on t.TRMID=tc.TCRTRMID " +
+                "JOIN ec2.COURSES c on tc.tcrcrsid=c.crsid " +
+                "WHERE srg.srgstdid = :pStdId " +
+                "AND s.strseqno <= (select strseqno from ec2.semesters s1 where s1.strid=:pSemId) " +
+                "AND s.strbchid = (SELECT STRBCHID FROM ec2.SEMESTERS WHERE STRID = :pSemId) " +
+                "AND src.SRCSTATUS='ACTIVE' ORDER BY tc.TCRCRSID ASC, t.TRMAYRID DESC, t.TRMSEQNO DESC", nativeQuery = true)
+    List<Object[]> findCrsForStdAndSem(@Param("pStdId") Long pStdId, @Param("pSemId") Long pSemId);
+
 }

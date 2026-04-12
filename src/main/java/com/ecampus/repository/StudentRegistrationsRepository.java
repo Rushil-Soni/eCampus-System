@@ -61,4 +61,7 @@ public interface StudentRegistrationsRepository extends JpaRepository<StudentReg
        ORDER BY s.stdinstid ASC
        """)
     List<StudentRegistrations> findBySemesterOrderByStudentInstId(@Param("semesterId") Long semesterId);
+
+    @Query(value = "SELECT * FROM ec2.STUDENTREGISTRATIONS srg WHERE srg.SRGSTRID=:semesterId", nativeQuery = true)
+    List<StudentRegistrations> findByStrid(@Param("semesterId") Long semesterId);
 }

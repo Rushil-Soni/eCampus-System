@@ -31,4 +31,7 @@ public interface StudentSemesterResultRepository extends
 
     @Query(value = "SELECT * FROM ec2.STUDENTSEMESTERRESULT ssr WHERE ssr.SSRSRGID = :srgid", nativeQuery = true)
     StudentSemesterResult getBySrgid(@Param("srgid") Long srgid);
+
+    @Query(value = "SELECT COALESCE(MAX(ssr.ssrid), 0) FROM ec2.STUDENTSEMESTERRESULT ssr", nativeQuery = true)
+    Long findMaxId();
 }
