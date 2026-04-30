@@ -50,17 +50,25 @@ public class ElectiveRegistrationController {
 
     @Autowired
     private StudentCourseRequirementsRepository studCourseReqRepo;
-    
+
     @GetMapping("/student/electiveRegistration")
     public String getcourses(Authentication authentication, Model model, RedirectAttributes redirectAttributes){
 
         String username = authentication.getName();
+        System.out.println("[ELECTIVE DEBUG] Username: " + username);
 
         Long studentId = userRepo.findIdByUname(username);
+        System.out.println("[ELECTIVE DEBUG] Student ID: " + studentId);
 
         Students st = registrationService.getStudentById(studentId);
+        System.out.println("[ELECTIVE DEBUG] Student Batch ID: " + st.getStdbchid());
 
         Long trmid = semestersRepo.findMaxTrmIdByBchId(st.getStdbchid());
+        System.out.println("[ELECTIVE DEBUG] Term ID: " + trmid);
+
+        // Get the latest semester ID to pass back to form
+        Long semesterId = registrationService.getMaxSemesterId(st.getStdbchid());
+        model.addAttribute("semesterId", semesterId);
 
         RegistrationOpenFor rof = registrationOpenForRepo.getRofByTrmBch(trmid,st.getStdbchid(),"Elective");
 
@@ -75,16 +83,23 @@ public class ElectiveRegistrationController {
         }
 
         List<Object[]> results = termCoursesRepo.findCoursesBySlot(trmid, "ELECTIVE", st.getStdbchid());
+        System.out.println("[ELECTIVE DEBUG] Total courses found: " + results.size());
+        for(int i = 0; i < results.size(); i++) {
+            Object[] row = results.get(i);
+            System.out.println("  Course " + i + ": tcrid=" + row[0] + ", code=" + row[3] + ", type=" + row[6] + ", slot=" + row[7]);
+        }
 
         List<String> electiveTypes = results.stream()
                                         .map(row -> (String) row[6])   // get index 6
                                         .filter(Objects::nonNull)      // avoid nulls
                                         .distinct()                    // remove duplicates
                                         .collect(Collectors.toList());
+        System.out.println("[ELECTIVE DEBUG] Elective types: " + electiveTypes);
 
         // Grouping by tcrslot (which is at index 7 in our query)
         Map<Object, List<Object[]>> slotMap = results.stream()
                 .collect(Collectors.groupingBy(row -> row[7]));
+        System.out.println("[ELECTIVE DEBUG] Slot map keys: " + slotMap.keySet());
 
         model.addAttribute("slotMap", slotMap);
         model.addAttribute("electiveTypes", electiveTypes);
@@ -209,6 +224,11 @@ public class ElectiveRegistrationController {
         List<Object[]> requirements = studCourseReqRepo.getBySid(studentId);
         List<Object[]> slotPref = slotPrefRepo.getBySid(studentId);
         List<CoursePreferences> coursePref = coursePrefRepo.getBySid(studentId);
+
+        if(requirements==null || slotPref==null || coursePref==null){
+            redirectAttributes.addFlashAttribute("error", "No Elective Registration record found.");
+            return "redirect:/student/dashboard";
+        }
 
         if(requirements==null || slotPref==null || coursePref==null){
             redirectAttributes.addFlashAttribute("error", "No Elective Registration record found.");

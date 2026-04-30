@@ -22,6 +22,9 @@ public interface UserRepository extends JpaRepository<Users, Long>, UserDetailsR
     @Query(value = "SELECT stdid FROM ec2.users WHERE uname = :username", nativeQuery = true)
     Long findIdByUname(@Param("username") String username);
 
+    @Query(value = "SELECT uid FROM ec2.users WHERE uname = :username", nativeQuery = true)
+    Long findUidByUname(@Param("username") String username);
+
     // Use native query so we hit the actual DB column `univid`
     @Query(value = "SELECT * FROM ec2.users WHERE univid = :univid", nativeQuery = true)
     Optional<Users> findByUnivId(@Param("univid") String univId);

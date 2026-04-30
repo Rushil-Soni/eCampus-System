@@ -121,4 +121,13 @@ public class SpecifyOpenForService {
         }
     }
 
+    @Transactional
+    public void updateTermCourseSlot(Long tcrid, Long slot) {
+        TermCourses tc = TermCoursesRepo.findById(tcrid).orElse(null);
+        if (tc != null) {
+            tc.setTcrslot(slot);
+            TermCoursesRepo.save(tc);
+        }
+    }
+
 }

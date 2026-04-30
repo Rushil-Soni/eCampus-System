@@ -183,6 +183,26 @@ public class SpecifyOpenForController {
         return "admin/openfor :: coursesSection";
     }
 
+    @PostMapping("/updateSlot")
+    public String updateSlot(@RequestParam Long tcrid,
+                             @RequestParam Long slot,
+                             @RequestParam String batch,
+                             @RequestParam String program,
+                             @RequestParam Long termId,
+                             Model model) {
+        
+        // Call service to update slot
+        OpenForService.updateTermCourseSlot(tcrid, slot);
+        
+        // Standard fragment refresh logic
+        prepareCourseData(batch, program, termId, model);
+        model.addAttribute("selectedBatch", batch);
+        model.addAttribute("selectedProgram", program);
+        model.addAttribute("selectedTermId", termId);
+
+        return "admin/openfor :: coursesSection";
+    }
+
     @PostMapping("/remove")
     public String removeCourse(@RequestParam Long tcaId,
                                @RequestParam String batch,

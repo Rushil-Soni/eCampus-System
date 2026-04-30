@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,18 @@ public interface StudentRegistrationCoursesRepository extends JpaRepository<Stud
     List<StudentRegistrationCourses> findBySrcsrgidIn(List<Long> srgIds);
 
     Optional<StudentRegistrationCourses> findBySrcid(Long srcid);
+    
+    // Find all courses for a specific student registration
+    @Query(value = "SELECT * FROM ec2.STUDENTREGISTRATIONCOURSES src WHERE src.SRCSRGID = :srgid AND src.SRCROWSTATE > 0", nativeQuery = true)
+    List<StudentRegistrationCourses> findBySrgId(@Param("srgid") Long srgid);
+
+    @Query(value = "SELECT * FROM ec2.STUDENTREGISTRATIONCOURSES src WHERE src.SRCSRGID = :srgid AND src.SRCSCRID = :scrid AND src.SRCROWSTATE > 0", nativeQuery = true)
+    List<StudentRegistrationCourses> findActiveBySrgIdAndScrid(@Param("srgid") Long srgid, @Param("scrid") Long scrid);
+
+    @Modifying
+    @Query(value = "UPDATE ec2.STUDENTREGISTRATIONCOURSES SET SRCROWSTATE = 0 WHERE SRCID = :srcid", nativeQuery = true)
+    int softDeleteBySrcid(@Param("srcid") Long srcid);
+    
 
     @Query(value = "SELECT COALESCE(MAX(src.srcid), 0) FROM ec2.studentregistrationcourses src", nativeQuery = true)
     Long findMaxSrcId();

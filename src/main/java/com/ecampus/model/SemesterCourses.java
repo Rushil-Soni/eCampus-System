@@ -98,4 +98,7 @@ public class SemesterCourses {
 
     public Long getCtpid() { return ctpid; }
     public void setCtpid(Long ctpid) { this.ctpid = ctpid; }
+    
+    public CourseTypes getCourseType() { return courseType; }
+    public void setCourseType(CourseTypes courseType) { this.courseType = courseType; }
 }
