@@ -45,7 +45,7 @@ public class FacultyGradeModController {
         Long facultyId = user.getUid();
 
         model.addAttribute("requests", gradeModService.getPendingRequestsForFaculty(facultyId));
-        return "faculty-pending";
+        return "faculty/faculty-pending";
     }
 
     @GetMapping("/completed-requests")
@@ -56,7 +56,7 @@ public class FacultyGradeModController {
         Long facultyId = user.getUid();
 
         model.addAttribute("requests", gradeModService.getCompletedRequestsForFaculty(facultyId));
-        return "faculty-completed";
+        return "faculty/faculty-completed";
     }
 
     @GetMapping("/request-details/{id}")
@@ -73,6 +73,6 @@ public class FacultyGradeModController {
         model.addAttribute("overallRemarks", header.getGmdReqDesc());
         model.addAttribute("studentDetails", studentDetails);
 
-        return "faculty-request-details";
+        return "faculty/faculty-request-details";
     }
 }

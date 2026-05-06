@@ -44,7 +44,7 @@ public class GradeModAdminController {
 
         List<GradeModAdminSummaryDTO> requests = gradeModService.getRequestsForDean();
         model.addAttribute("requests", requests);
-        return "dean-pending-approvals";
+        return "grademodadmin/dean-pending-approvals";
     }
 
     @PostMapping("/dean/process-request")
@@ -98,7 +98,7 @@ public class GradeModAdminController {
 
         List<GradeModAdminSummaryDTO> requests = gradeModService.getRequestsForRegistrar();
         model.addAttribute("requests", requests);
-        return "registrar-pending-approvals";
+        return "grademodadmin/registrar-pending-approvals";
     }
 
     @PostMapping("/registrar/process-request")
