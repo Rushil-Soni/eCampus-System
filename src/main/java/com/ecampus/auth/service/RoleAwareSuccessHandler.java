@@ -29,6 +29,22 @@ public class RoleAwareSuccessHandler
             return saved;
         }
 
+        // -- soft distinguishing logic - Dean or Registrar for time-being
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof com.ecampus.model.Users user) {
+            String role0 = user.getUrole0();
+            String type0 = user.getUtype0();
+
+            // Professional Implicit Logic
+            if ("U".equals(type0)) {
+                if ("FACULTY".equals(role0)) {
+                    return "/dean/pending-approvals"; // Dean AP
+                } else if ("EMPLOYEE".equals(role0)) {
+                    return "/registrar/pending-approvals"; // Registrar
+                }
+            }
+        }
+
         // Otherwise, resolve based on role
         for (GrantedAuthority authority : authentication.getAuthorities()) {
             String role = authority.getAuthority(); // e.g. ROLE1
