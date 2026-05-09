@@ -64,10 +64,11 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th style="width: 5%">S.No</th>
-                                    <th style="width: 15%">Course Code</th>
-                                    <th style="width: 40%">Course Name</th>
-                                    <th style="width: 15%">L-T-P-C</th>
-                                    <th style="width: 15%">Seats</th>
+                                    <th style="width: 12%">Course Code</th>
+                                    <th style="width: 35%">Course Name</th>
+                                    <th style="width: 10%">L-T-P-C</th>
+                                    <th style="width: 10%">Slot</th>
+                                    <th style="width: 14%">Seats</th>
                                     <th style="width: 10%">Action</th>
                                 </tr>
                             </thead>
@@ -79,7 +80,27 @@
                                     <td th:text="|${tca.termCourse.course.crslectures}-${tca.termCourse.course.crstutorials}-${tca.termCourse.course.crspracticals}-${tca.termCourse.course.crscreditpoints}|">
                                         3-0-2-4
                                     </td>
-                                    <td style="width: 15%">
+                                    <td style="width: 10%">
+                                        <div class="input-group input-group-sm" style="max-width: 100px;">
+                                            <input type="number" 
+                                                th:id="'slot-' + ${tca.termCourse.tcrid}" 
+                                                class="form-control" 
+                                                th:value="${tca.termCourse.tcrslot != null ? tca.termCourse.tcrslot : ''}" 
+                                                min="0"
+                                                placeholder="0">
+                                            <button class="btn btn-success btn-sm" 
+                                                    type="button" 
+                                                    th:data-tcrid="${tca.termCourse.tcrid}"
+                                                    th:data-batch="${selectedBatch}"
+                                                    th:data-program="${selectedProgram}"
+                                                    th:data-termid="${selectedTermId}"
+                                                    onclick="updateSlotAction(this)"
+                                                    title="Save Slot">
+                                                Save
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td style="width: 14%">
                                         <div class="input-group input-group-sm" style="max-width: 120px;">
                                             <input type="number" 
                                                 th:id="'seats-' + ${tca.tcaid}" 
@@ -94,7 +115,7 @@
                                                     th:data-termid="${selectedTermId}"
                                                     onclick="updateSeatsAction(this)"
                                                     title="Save Seats">
-                                                <i class="bi bi-check"></i> Save
+                                                Save
                                             </button>
                                         </div>
                                     </td>
@@ -111,7 +132,7 @@
                                     </td>
                                 </tr>
                                 <tr th:if="${#lists.isEmpty(entry.value)}">
-                                    <td colspan="6" class="text-center text-muted py-3">No courses available for this elective type.</td>
+                                    <td colspan="7" class="text-center text-muted py-3">No courses available for this elective type.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -224,6 +245,48 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert("Could not update seats. Please try again.");
+            });
+        }
+
+        function updateSlotAction(btn) {
+            const tcrid = btn.dataset.tcrid;
+            const batch = btn.dataset.batch;
+            const program = btn.dataset.program;
+            const termId = btn.dataset.termid;
+
+            const slotInput = document.getElementById('slot-' + tcrid);
+            const slotValue = slotInput.value;
+
+            if (!slotValue || slotValue.trim() === '') {
+                alert("Please enter a slot number");
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.append('tcrid', tcrid);
+            params.append('slot', slotValue);
+            params.append('batch', batch);
+            params.append('program', program);
+            params.append('termId', termId);
+
+            fetch('/admin/openfor/updateSlot', {
+                method: 'POST',
+                body: params,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]')?.value 
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Update failed');
+                return response.text();
+            })
+            .then(htmlFragment => {
+                document.getElementById("displayArea").innerHTML = htmlFragment;
+                console.log("Slot updated successfully for TCRID: " + tcrid);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Could not update slot. Please try again.");
             });
         }
 
