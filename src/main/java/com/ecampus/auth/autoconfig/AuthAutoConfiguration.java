@@ -54,6 +54,9 @@ public class AuthAutoConfiguration {
             // Allow static resources
             auth.requestMatchers("/css/**", "/js/**", "/images/**").permitAll();
 
+            // -- Temporary Dean & Registrar Access for Grade Modification
+        auth.requestMatchers("/dean/**", "/registrar/**").hasAuthority("FACULTY");
+
             // Map roles from properties
             props.getRoleRules().forEach((role, paths) -> {
                 paths.forEach(path -> auth.requestMatchers(path).hasAuthority(role));
