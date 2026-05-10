@@ -325,6 +325,15 @@ public class StudentRegistrationController {
         }
 
         List<CourseRegistrationDTO> additionalCourses = parseCoursesFromRequest(allParams);
+        List<CourseRegistrationDTO> missingTermCourse = additionalCourses.stream()
+            .filter(dto -> !Boolean.TRUE.equals(dto.getIsDrop()))
+            .filter(dto -> dto.getScrid() == null || dto.getScrtcrid() == null)
+            .collect(Collectors.toList());
+        if (!missingTermCourse.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error",
+                "One or more selected courses are missing term-course mapping. Please reselect and submit again.");
+            return "redirect:/student/registration/additional?strid=" + strid;
+        }
         registrationService.saveAdditionalCourses(studentId, strid, additionalCourses, userId);
 
         redirectAttributes.addFlashAttribute("success", "Additional courses updated successfully.");
@@ -421,7 +430,9 @@ public class StudentRegistrationController {
             }
         }
         
-        courses.addAll(courseMap.values());
+        courses.addAll(courseMap.values().stream()
+            .filter(course -> course.getScrid() != null || course.getSrcid() != null)
+            .collect(Collectors.toList()));
         return courses;
     }
 

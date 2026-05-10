@@ -187,12 +187,12 @@ public interface TermCoursesRepository extends JpaRepository<TermCourses, Long> 
 
     @Query(value = "SELECT tc.tcrid, tc.tcrcrsid, c.crsname, c.crscode, " +
        "CONCAT(c.crslectures, '-', c.crstutorials, '-', c.crspracticals, '-', c.crscreditpoints) as ltpc, " +
-       "tc.tcrfacultyid, tca.tcaelectivetype, COALESCE(tc.tcrslot, 0) " +
+       "tc.tcrfacultyid, tca.tcaelectivetype, tc.tcrslot " +
        "FROM ec2.termcourses tc " +
        "JOIN ec2.courses c ON tc.tcrcrsid = c.crsid " +
        "JOIN ec2.termcourseavailablefor tca ON tca.tcatcrid = tc.tcrid " +
        "WHERE tc.tcrtrmid = :trmid " +
-       "AND tc.crstype = :crstype " +
+       "AND tc.crstype = :crstype AND tc.tcrslot IS NOT NULL " +
        "AND tca.tcabchid = :bchid " +
        "AND tca.tcaelectivetype IS NOT NULL " +
        "ORDER BY tca.tcaelectivetype, c.crsname", nativeQuery = true)

@@ -570,7 +570,7 @@
                                     <input class="form-control form-control-sm"
                                            type="text"
                                            th:name="${'rows[' + (idx.index + #lists.size(coreCourses)) + '].remarks'}"
-                                           th:value="${course.remarks}"
+                                           th:value="${#strings.isEmpty(course.remarks) or !#strings.equalsIgnoreCase(course.remarks, course.regType) ? course.regType : course.remarks}"
                                            th:readonly="${!editable}"
                                            placeholder="Optional">
                                 </td>
