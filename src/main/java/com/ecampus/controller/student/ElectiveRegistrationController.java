@@ -103,6 +103,12 @@ public class ElectiveRegistrationController {
 
         model.addAttribute("slotMap", slotMap);
         model.addAttribute("electiveTypes", electiveTypes);
+        boolean hasSubmittedPreferences = false;
+        List<CoursePreferences> existingPrefs = coursePrefRepo.getBySid(studentId);
+        if (existingPrefs != null && !existingPrefs.isEmpty()) {
+            hasSubmittedPreferences = true;
+        }
+        model.addAttribute("hasSubmittedPreferences", hasSubmittedPreferences);
 
         return "student/electiveRegistration";
     }
@@ -245,6 +251,7 @@ public class ElectiveRegistrationController {
         ));
 
         model.addAttribute("groupedCoursePref", grouped);
+        slotPref.sort(Comparator.comparing(row -> row[1] == null ? Long.MAX_VALUE : ((Number) row[1]).longValue()));
         model.addAttribute("slotPref", slotPref);
         model.addAttribute("requirements", requirements);
 

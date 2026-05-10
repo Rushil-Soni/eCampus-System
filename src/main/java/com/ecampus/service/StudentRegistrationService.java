@@ -168,14 +168,50 @@ public class StudentRegistrationService {
         List<CourseRegistrationDTO> gradeImprovementRows = getGradeImprovementCoursesForStudentBySemester(studentId, semesterId);
         List<CourseRegistrationDTO> projectRows = getProjectInternshipCoursesBySemester(semesterId);
 
-        return getAdditionalRegisteredCourses(
-                srgId,
-                semesterId,
+        List<StudentRegistrationCourses> registered = registrationCoursesRepo.findBySrgId(srgId);
+        if (registered.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, StudentRegistrationCourses> byScrid = registered.stream()
+                .collect(Collectors.toMap(StudentRegistrationCourses::getSrcscrid, Function.identity(), (a, b) -> a));
+
+        List<CourseRegistrationDTO> auditRows = getAuditCoursesForStudentBySemester(
                 studentId,
+                semesterId,
                 coreRows,
                 backlogRows,
                 gradeImprovementRows,
-                projectRows);
+                projectRows,
+                List.of());
+
+        Map<Long, CourseRegistrationDTO> candidateByScrid = new LinkedHashMap<>();
+        for (CourseRegistrationDTO row : backlogRows) {
+            candidateByScrid.put(row.getScrid(), row);
+        }
+        for (CourseRegistrationDTO row : gradeImprovementRows) {
+            candidateByScrid.putIfAbsent(row.getScrid(), row);
+        }
+        for (CourseRegistrationDTO row : projectRows) {
+            candidateByScrid.putIfAbsent(row.getScrid(), row);
+        }
+        for (CourseRegistrationDTO row : auditRows) {
+            candidateByScrid.putIfAbsent(row.getScrid(), row);
+        }
+
+        List<CourseRegistrationDTO> out = new ArrayList<>();
+        for (CourseRegistrationDTO row : candidateByScrid.values()) {
+            StudentRegistrationCourses rc = byScrid.get(row.getScrid());
+            if (rc != null) {
+                row.setSrcid(rc.getSrcid());
+                row.setRegType(rc.getSrctype());
+                String remarks = rc.getSrcfield1();
+                row.setRemarks(isBlank(remarks) ? rc.getSrctype() : remarks);
+                row.setIsDrop(false);
+                out.add(row);
+            }
+        }
+        return out;
     }
 
     public List<CourseRegistrationDTO> getAdditionalRegisteredCourses(
@@ -201,13 +237,13 @@ public class StudentRegistrationService {
             existingRows.add(row);
         }
         List<CourseRegistrationDTO> auditRows = getAuditCoursesForStudentBySemester(
-                studentId,
-                semesterId,
-                coreRows,
-                backlogRows,
-                gradeImprovementRows,
-                projectRows,
-                existingRows);
+            studentId,
+            semesterId,
+            coreRows,
+            backlogRows,
+            gradeImprovementRows,
+            projectRows,
+            List.of());
 
         Map<Long, CourseRegistrationDTO> candidateByScrid = new LinkedHashMap<>();
         for (CourseRegistrationDTO row : backlogRows) {
@@ -229,7 +265,9 @@ public class StudentRegistrationService {
             if (rc != null) {
                 row.setSrcid(rc.getSrcid());
                 row.setRegType(rc.getSrctype());
-                row.setRemarks(rc.getSrcfield1());
+                String regType = rc.getSrctype();
+                String remarks = rc.getSrcfield1();
+                row.setRemarks(isBlank(remarks) || !remarks.equalsIgnoreCase(regType) ? regType : remarks);
                 row.setIsDrop(false);
                 out.add(row);
             }
@@ -237,6 +275,7 @@ public class StudentRegistrationService {
         return out;
     }
 
+    @Transactional
     public void saveAdditionalCourses(
             Long studentId,
             Long semesterId,
@@ -275,14 +314,34 @@ public class StudentRegistrationService {
                 regCourse.setSrcid(getNextSrcId());
                 regCourse.setSrcsrgid(registration.getSrgid());
                 regCourse.setSrctcrid(dto.getScrtcrid());
-                regCourse.setSrctype(isBlank(dto.getRegType()) ? "PROJECT" : dto.getRegType());
+                String regType = isBlank(dto.getRegType()) ? "PROJECT" : dto.getRegType();
+                String remarks = dto.getRemarks();
+                String normalizedRemarks = isBlank(remarks) || !remarks.equalsIgnoreCase(regType)
+                        ? regType
+                        : remarks;
+                regCourse.setSrctype(regType);
                 regCourse.setSrcscrid(dto.getScrid());
                 regCourse.setSrcstatus("ACTIVE");
-                regCourse.setSrcfield1(dto.getRemarks());
+                regCourse.setSrcfield1(normalizedRemarks);
+                regCourse.setOrigCtpid(dto.getCtpid());
+                regCourse.setCurrCtpid(dto.getCtpid());
                 regCourse.setSrccreatedby(userId);
                 regCourse.setSrccreatedat(LocalDateTime.now());
                 regCourse.setSrcrowstate(1L);
                 registrationCoursesRepo.save(regCourse);
+            } else if (dto.getCtpid() != null) {
+                for (StudentRegistrationCourses existing : existingRows) {
+                    boolean needsUpdate = existing.getOrigCtpid() == null || existing.getCurrCtpid() == null;
+                    if (needsUpdate) {
+                        if (existing.getOrigCtpid() == null) {
+                            existing.setOrigCtpid(dto.getCtpid());
+                        }
+                        if (existing.getCurrCtpid() == null) {
+                            existing.setCurrCtpid(dto.getCtpid());
+                        }
+                        registrationCoursesRepo.save(existing);
+                    }
+                }
             }
         }
     }
@@ -304,9 +363,12 @@ public class StudentRegistrationService {
             }
             dto.setCredits(credits);
 
-            String ctpCode = row[6] == null ? null : row[6].toString().trim();
-            String crsCat = row[7] == null ? null : row[7].toString().trim();
-            String courseTypeFallback = row[8] == null ? null : row[8].toString().trim();
+            Long ctpid = row[6] == null ? null : ((Number) row[6]).longValue();
+            dto.setCtpid(ctpid);
+
+            String ctpCode = row[7] == null ? null : row[7].toString().trim();
+            String crsCat = row[8] == null ? null : row[8].toString().trim();
+            String courseTypeFallback = row[9] == null ? null : row[9].toString().trim();
 
             String courseTypeCode = isBlank(ctpCode)
                     ? (isBlank(courseTypeFallback) ? "CORE" : courseTypeFallback)
@@ -361,6 +423,19 @@ public class StudentRegistrationService {
             if (courseDTO.getSrcid() != null) {
                 if (Boolean.TRUE.equals(courseDTO.getIsDrop())) {
                     registrationCoursesRepo.softDeleteBySrcid(courseDTO.getSrcid());
+                } else if (courseDTO.getCtpid() != null) {
+                    registrationCoursesRepo.findBySrcid(courseDTO.getSrcid()).ifPresent(existing -> {
+                        boolean needsUpdate = existing.getOrigCtpid() == null || existing.getCurrCtpid() == null;
+                        if (needsUpdate) {
+                            if (existing.getOrigCtpid() == null) {
+                                existing.setOrigCtpid(courseDTO.getCtpid());
+                            }
+                            if (existing.getCurrCtpid() == null) {
+                                existing.setCurrCtpid(courseDTO.getCtpid());
+                            }
+                            registrationCoursesRepo.save(existing);
+                        }
+                    });
                 }
                 continue;
             }
@@ -374,6 +449,8 @@ public class StudentRegistrationService {
                 regCourse.setSrcscrid(courseDTO.getScrid());
                 regCourse.setSrcstatus("ACTIVE");
                 regCourse.setSrcfield1(courseDTO.getRemarks());
+                regCourse.setOrigCtpid(courseDTO.getCtpid());
+                regCourse.setCurrCtpid(courseDTO.getCtpid());
                 regCourse.setSrccreatedby(userId);
                 regCourse.setSrccreatedat(LocalDateTime.now());
                 regCourse.setSrcrowstate(1L);

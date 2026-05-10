@@ -14,6 +14,7 @@ public class CourseRegistrationDTO {
     private String courseCode;             // Course code (from Courses.crscode)
     private String courseTitle;            // Course title (from Courses.crstitle)
     private BigDecimal credits;            // Credit points (from Courses.crscreditpoints)
+    private Long ctpid;                     // CourseTypes ID
     private String courseType;             // Course type (from CourseTypes.crscat)
     private String courseTypeCode;         // Course type code (from CourseTypes.ctpcode)
     private String regType;                // Registration type (REGULAR/BACKLOG/GRADE-IMPROVEMENT/AUDIT)
@@ -41,6 +42,9 @@ public class CourseRegistrationDTO {
     
     public BigDecimal getCredits() { return credits; }
     public void setCredits(BigDecimal credits) { this.credits = credits; }
+
+    public Long getCtpid() { return ctpid; }
+    public void setCtpid(Long ctpid) { this.ctpid = ctpid; }
     
     public String getCourseType() { return courseType; }
     public void setCourseType(String courseType) { this.courseType = courseType; }

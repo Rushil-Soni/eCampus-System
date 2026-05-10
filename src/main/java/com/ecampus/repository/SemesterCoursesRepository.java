@@ -28,6 +28,7 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
                c.crscode,
                COALESCE(c.crstitle, c.crsname) AS course_title,
                c.crscreditpoints,
+               sc.ctpid,
                ct.ctpcode,
                ct.crscat,
                c.crstype
@@ -50,6 +51,7 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
                                      c.crscode,
                                      COALESCE(c.crstitle, c.crsname) AS course_title,
                                      c.crscreditpoints,
+                                    sc.ctpid,
                                      ct.ctpcode,
                                      ct.crscat,
                                      c.crstype
@@ -95,6 +97,7 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
                                                                c.crscode,
                                                             c.crsname AS course_title,
                                                                c.crscreditpoints,
+                                                                                    sc.ctpid,
                                                                ct.ctpcode,
                                                                ct.crscat,
                                                                c.crstype,
@@ -132,6 +135,7 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
                                                        picked.crscode,
                                                        picked.course_title,
                                                        picked.crscreditpoints,
+                                                       picked.ctpid,
                                                        picked.ctpcode,
                                                        picked.crscat,
                                                        picked.crstype
@@ -200,6 +204,7 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
                                                                c.crscode,
                                                                      c.crsname AS course_title,
                                                                c.crscreditpoints,
+                                                               sc.ctpid,
                                                                ct.ctpcode,
                                                                ct.crscat,
                                                                c.crstype,
@@ -241,6 +246,7 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
                                                        picked.crscode,
                                                        picked.course_title,
                                                        picked.crscreditpoints,
+                                                           picked.ctpid,
                                                        picked.ctpcode,
                                                        picked.crscat,
                                                        picked.crstype
@@ -259,6 +265,7 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
                                                                          c.crscode,
                                                                          COALESCE(c.crstitle, c.crsname) AS course_title,
                                                                          c.crscreditpoints,
+                                                                        sc.ctpid,
                                                                          ct.ctpcode,
                                                                          ct.crscat,
                                                                          c.crstype
